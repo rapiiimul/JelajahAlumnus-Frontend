@@ -2,46 +2,40 @@
 
 import Link from "next/link"
 import { useRef, useState } from "react"
-import { CheckCircle2, ChevronRight, GraduationCap, LockKeyhole, Mail, UserRound } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { registerToBackend, resendOtpToBackend, verifyEmailToBackend } from "@/lib/api-client"
+import { ChevronRight, GraduationCap, LockKeyhole, Mail } from "lucide-react"
+import { forgotPasswordToBackend, resendOtpToBackend, resetPasswordToBackend } from "@/lib/api-client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
-type Step = "form" | "otp" | "success"
+type Step = "email" | "otp" | "success"
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return <label className="flex flex-col gap-2 text-sm font-medium">{label}{children}</label>
 }
 
-export default function RegisterPage() {
-  const [step, setStep] = useState<Step>("form")
-  const [name, setName] = useState("")
+export default function ForgotPasswordPage() {
+  const [step, setStep] = useState<Step>("email")
   const [email, setEmail] = useState("")
-  const [nisn, setNisn] = useState("")
-  const [password, setPassword] = useState("")
   const [digits, setDigits] = useState<string[]>(Array(6).fill(""))
   const refs = useRef<(HTMLInputElement | null)[]>([])
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
   const [error, setError] = useState("")
   const [message, setMessage] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const sendOtp = async (event: React.FormEvent) => {
+  const requestOtp = async (event: React.FormEvent) => {
     event.preventDefault()
-    if (!name.trim() || !email.trim() || !nisn.trim() || !password.trim()) {
-      setError("Lengkapi semua kolom terlebih dahulu.")
-      return
-    }
-    if (password.length < 6) {
-      setError("Kata sandi minimal 6 karakter.")
+    if (!email.trim()) {
+      setError("Masukkan alamat email Anda.")
       return
     }
     setIsSubmitting(true)
     setError("")
-    const result = await registerToBackend({ name, email, nisn, password, password_confirmation: password })
+    const result = await forgotPasswordToBackend(email)
     setIsSubmitting(false)
     if (!result.ok) {
-      setError(result.message || "Pendaftaran gagal.")
+      setError(result.message || "Gagal mengirim OTP.")
       return
     }
     setMessage(result.message || `Kode OTP telah dikirim ke ${email}.`)
@@ -49,28 +43,36 @@ export default function RegisterPage() {
     setDigits(Array(6).fill(""))
   }
 
-  const verifyOtp = async (event: React.FormEvent) => {
+  const resetPassword = async (event: React.FormEvent) => {
     event.preventDefault()
     const otp = digits.join("")
     if (otp.length < 6) {
       setError("Masukkan 6 digit kode OTP yang dikirim ke email Anda.")
       return
     }
-    setIsSubmitting(true)
-    setError("")
-    const result = await verifyEmailToBackend(email, digits.join(""))
-    setIsSubmitting(false)
-    if (!result.ok) {
-      setError(result.message || "Kode OTP tidak sesuai.")
+    if (newPassword.length < 6) {
+      setError("Kata sandi baru minimal 6 karakter.")
       return
     }
-    setMessage(result.message || "Verifikasi berhasil. Akun Anda siap digunakan.")
+    if (newPassword !== confirmPassword) {
+      setError("Konfirmasi kata sandi tidak cocok.")
+      return
+    }
+    setIsSubmitting(true)
+    setError("")
+    const result = await resetPasswordToBackend(email, otp, newPassword, confirmPassword)
+    setIsSubmitting(false)
+    if (!result.ok) {
+      setError(result.message || "Reset kata sandi gagal.")
+      return
+    }
+    setMessage(result.message || "Kata sandi berhasil diperbarui.")
     setStep("success")
   }
 
   const resendOtp = async () => {
     setIsSubmitting(true)
-    const result = await resendOtpToBackend(email, "verify")
+    const result = await resendOtpToBackend(email, "reset")
     setIsSubmitting(false)
     setMessage(result.message || "OTP baru telah dikirim.")
     setDigits(Array(6).fill(""))
@@ -90,21 +92,12 @@ export default function RegisterPage() {
           </div>
         </div>
         <div className="max-w-xl">
-          <Badge className="bg-primary-foreground/15 text-primary-foreground">Pendaftaran Alumni</Badge>
-          <h1 className="mt-6 text-5xl font-bold leading-tight text-balance">
-            Bergabung dan jadilah bagian dari jaringan alumni terpercaya.
+          <h1 className="text-5xl font-bold leading-tight text-balance">
+            Pulihkan akses ke akun alumni Anda dengan mudah.
           </h1>
           <p className="mt-5 max-w-lg text-lg leading-relaxed text-primary-foreground/75">
-            Daftarkan diri, verifikasi akun, dan mulai perjalanan karier bersama ribuan alumni SMK Nusantara.
+            Masukkan email terdaftar dan kami akan mengirimkan kode OTP untuk mereset kata sandi Anda.
           </p>
-          <div className="mt-10 grid grid-cols-3 gap-6">
-            {[["1.248", "Alumni"], ["84%", "Respons"], ["126", "Mitra"]].map(x => (
-              <div key={x[1]}>
-                <p className="text-3xl font-bold">{x[0]}</p>
-                <p className="text-sm text-primary-foreground/65">{x[1]}</p>
-              </div>
-            ))}
-          </div>
         </div>
         <p className="text-sm text-primary-foreground/60">© 2026 SMK Nusantara · Bursa Kerja Khusus</p>
       </section>
@@ -123,31 +116,16 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          {step === "form" && (
-            <form onSubmit={sendOtp}>
+          {step === "email" && (
+            <form onSubmit={requestOtp}>
               <p className="text-sm font-semibold text-primary">PORTAL ALUMNI & BKK</p>
-              <h2 className="mt-2 text-3xl font-bold">Buat akun baru</h2>
-              <p className="mt-2 text-muted-foreground">Isi data diri Anda untuk memulai pendaftaran.</p>
+              <h2 className="mt-2 text-3xl font-bold">Lupa kata sandi?</h2>
+              <p className="mt-2 text-muted-foreground">Masukkan email terdaftar untuk menerima kode OTP.</p>
               <div className="mt-6 flex flex-col gap-4">
-                <Field label="Nama lengkap">
-                  <div className="relative">
-                    <UserRound className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input className="pl-9" placeholder="Contoh: Aulia Rahma" value={name} onChange={e => setName(e.target.value)} />
-                  </div>
-                </Field>
                 <Field label="Email">
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input className="pl-9" type="email" placeholder="nama@email.com" value={email} onChange={e => setEmail(e.target.value)} />
-                  </div>
-                </Field>
-                <Field label="NISN">
-                  <Input placeholder="Contoh: 0011223344" value={nisn} onChange={e => setNisn(e.target.value)} />
-                </Field>
-                <Field label="Kata sandi">
-                  <div className="relative">
-                    <LockKeyhole className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input className="pl-9" type="password" placeholder="Minimal 6 karakter" value={password} onChange={e => setPassword(e.target.value)} />
+                    <Input className="pl-9" type="email" placeholder="nama@email.com" value={email} onChange={e => setEmail(e.target.value)} required />
                   </div>
                 </Field>
                 {error && <p role="alert" className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
@@ -156,19 +134,19 @@ export default function RegisterPage() {
                 </Button>
               </div>
               <div className="mt-5 text-center text-sm text-muted-foreground">
-                Sudah punya akun?{" "}
+                Ingat kata sandi?{" "}
                 <Link href="/login" className="font-semibold text-primary hover:underline">Masuk sekarang</Link>
               </div>
             </form>
           )}
 
           {step === "otp" && (
-            <form onSubmit={verifyOtp}>
-              <p className="text-sm font-semibold text-primary">VERIFIKASI EMAIL</p>
-              <h2 className="mt-2 text-3xl font-bold">Masukkan kode OTP</h2>
-              <p className="mt-2 text-muted-foreground">Kami mengirim kode 6 digit ke email Anda.</p>
+            <form onSubmit={resetPassword}>
+              <p className="text-sm font-semibold text-primary">RESET KATA SANDI</p>
+              <h2 className="mt-2 text-3xl font-bold">Buat kata sandi baru</h2>
+              <p className="mt-2 text-muted-foreground">Masukkan kode OTP dan kata sandi baru Anda.</p>
               <div className="mt-6 rounded-lg bg-muted p-4 text-sm text-muted-foreground">
-                Kode dikirim ke <span className="font-semibold text-foreground">{email}</span>. Silakan cek kotak masuk atau folder spam.
+                Kode dikirim ke <span className="font-semibold text-foreground">{email}</span>. Berlaku selama 5 menit.
               </div>
               <div className="mt-6 flex flex-col gap-4">
                 <p className="text-sm font-medium">Kode OTP</p>
@@ -203,10 +181,22 @@ export default function RegisterPage() {
                     />
                   ))}
                 </div>
+                <Field label="Kata sandi baru">
+                  <div className="relative">
+                    <LockKeyhole className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input className="pl-9" type="password" placeholder="Minimal 6 karakter" value={newPassword} onChange={e => setNewPassword(e.target.value)} />
+                  </div>
+                </Field>
+                <Field label="Konfirmasi kata sandi">
+                  <div className="relative">
+                    <LockKeyhole className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input className="pl-9" type="password" placeholder="Ulangi kata sandi baru" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
+                  </div>
+                </Field>
                 {error && <p role="alert" className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
                 {message && <p className="rounded-lg bg-primary/5 p-3 text-sm text-primary">{message}</p>}
                 <Button size="lg" type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Memverifikasi..." : "Verifikasi OTP"} <ChevronRight data-icon="inline-end" />
+                  {isSubmitting ? "Menyimpan..." : "Simpan kata sandi baru"} <ChevronRight data-icon="inline-end" />
                 </Button>
               </div>
               <button
@@ -223,19 +213,16 @@ export default function RegisterPage() {
           {step === "success" && (
             <div>
               <div className="flex size-16 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                <CheckCircle2 className="size-8" />
+                <LockKeyhole className="size-8" />
               </div>
-              <p className="mt-6 text-sm font-semibold text-primary">PENDAFTARAN SELESAI</p>
-              <h2 className="mt-2 text-3xl font-bold">Akun berhasil dibuat</h2>
+              <p className="mt-6 text-sm font-semibold text-primary">KATA SANDI DIPERBARUI</p>
+              <h2 className="mt-2 text-3xl font-bold">Berhasil direset</h2>
               <p className="mt-2 text-muted-foreground">
-                {message || "Akun Anda telah diverifikasi dan siap digunakan."}
+                {message || "Kata sandi Anda telah berhasil diperbarui. Silakan masuk dengan kata sandi baru."}
               </p>
-              <div className="mt-6 flex flex-col gap-3">
-                <Button size="lg" render={<Link href="/login" />}>
+              <div className="mt-6">
+                <Button size="lg" className="w-full" render={<Link href="/login" />}>
                   Masuk ke dashboard <ChevronRight data-icon="inline-end" />
-                </Button>
-                <Button size="lg" variant="outline" render={<Link href="/" />}>
-                  Kembali ke beranda
                 </Button>
               </div>
             </div>

@@ -257,6 +257,30 @@ export async function verifyEmailToBackend(email: string, otp: string): Promise<
   }
 }
 
+export async function forgotPasswordToBackend(email: string): Promise<BackendActionResponse> {
+  try {
+    await requestJson<unknown>("/api/v1/auth/forgot-password", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    })
+    return { ok: true, message: "Kode OTP telah dikirim ke email Anda." }
+  } catch (error) {
+    return { ok: false, message: getErrorMessage(error instanceof Error ? error.message : error) }
+  }
+}
+
+export async function resetPasswordToBackend(email: string, otp: string, new_password: string, new_password_confirmation: string): Promise<BackendActionResponse> {
+  try {
+    await requestJson<unknown>("/api/v1/auth/reset-password", {
+      method: "POST",
+      body: JSON.stringify({ email, otp, new_password, new_password_confirmation }),
+    })
+    return { ok: true, message: "Kata sandi berhasil diperbarui." }
+  } catch (error) {
+    return { ok: false, message: getErrorMessage(error instanceof Error ? error.message : error) }
+  }
+}
+
 export async function resendOtpToBackend(email: string, context: "verify" | "reset" = "verify"): Promise<BackendActionResponse> {
   try {
     await requestJson<unknown>("/api/v1/auth/resend-otp", {
