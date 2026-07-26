@@ -30,10 +30,5 @@
     "tailwindcss": "^4.2.0",
     "typescript": "5.7.3",
     "mini-css-extract-plugin": "^2.7.5"
-  },
-  "pnpm": {
-    "overrides": {
-      "hono": "4.12.25"
-    }
   }
 }
