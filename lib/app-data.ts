@@ -1,0 +1,21 @@
+import type { Role } from "@/lib/mock-data"
+
+export type Job = { id:string; title:string; company:string; location:string; type:string; salary:string; deadline:string; match:number; status:"Terbit"|"Draft"|"Ditutup"; description:string; responsibilities:string[]; requirements:string[]; skills:string[]; benefits:string[]; applicants:number }
+export type Application = { id:string; jobId:string; jobTitle:string; company:string; date:string; status:"Dikirim"|"Ditinjau"|"Wawancara"|"Diterima"|"Ditolak"; note:string }
+export type Session = { role:Role; name:string; email:string }
+
+export const demoAccounts: Record<Role,{email:string;password:string;name:string}> = {
+  alumni: { email:"aulia.rahma@email.com", password:"alumni123", name:"Aulia Rahma" },
+}
+
+export const seededJobs: Job[] = [
+  { id:"junior-frontend-developer", title:"Junior Frontend Developer", company:"Nusantara Digital", location:"Yogyakarta", type:"Full-time", salary:"Rp5.500.000 – Rp7.500.000", deadline:"28 Juli 2026", match:92, status:"Terbit", applicants:24, description:"Bergabunglah dengan tim produk Nusantara Digital untuk membangun aplikasi web yang cepat, aksesibel, dan digunakan ribuan pengguna. Posisi ini cocok untuk lulusan baru yang memiliki fondasi frontend kuat dan semangat belajar tinggi.", responsibilities:["Mengembangkan antarmuka web responsif dari desain produk","Berkolaborasi dengan designer dan backend engineer","Menulis kode yang mudah dipelihara dan terdokumentasi","Melakukan pengujian serta perbaikan bug"], requirements:["Lulusan SMK/D3/S1 bidang teknologi informasi","Memahami HTML, CSS, JavaScript, dan Git","Pernah membuat minimal dua proyek web","Mampu bekerja secara kolaboratif"], skills:["React","TypeScript","Tailwind CSS","Git"], benefits:["Asuransi kesehatan","Laptop kerja","Mentoring mingguan","Hybrid working"] },
+  { id:"it-support-specialist", title:"IT Support Specialist", company:"PT Arunika Teknologi", location:"Semarang", type:"Full-time", salary:"Rp4.800.000 – Rp6.200.000", deadline:"2 Agustus 2026", match:87, status:"Terbit", applicants:18, description:"Menangani dukungan perangkat, jaringan, dan aplikasi internal untuk memastikan operasional klien berjalan lancar.", responsibilities:["Menangani tiket dukungan teknis","Instalasi perangkat dan aplikasi","Pemeliharaan jaringan dasar","Membuat dokumentasi solusi"], requirements:["Lulusan TKJ/RPL","Memahami sistem operasi dan jaringan","Komunikatif dan berorientasi layanan"], skills:["Networking","Windows","Linux","Troubleshooting"], benefits:["BPJS","Tunjangan transport","Sertifikasi teknis"] },
+  { id:"staf-administrasi", title:"Staf Administrasi", company:"Karya Muda Group", location:"Solo", type:"Full-time", salary:"Rp3.800.000 – Rp4.800.000", deadline:"5 Agustus 2026", match:81, status:"Terbit", applicants:31, description:"Mengelola dokumen, jadwal, dan pelaporan operasional kantor secara rapi dan akurat.", responsibilities:["Mengarsipkan dokumen","Menyusun laporan rutin","Mengelola agenda tim"], requirements:["Lulusan administrasi/akuntansi","Menguasai Microsoft Office","Teliti dan disiplin"], skills:["Excel","Administrasi","Komunikasi"], benefits:["Uang makan","Bonus kinerja","Pelatihan"] },
+  { id:"accounting-intern", title:"Accounting Intern", company:"Mitra Finansial", location:"Remote", type:"Magang", salary:"Rp2.000.000 – Rp2.500.000", deadline:"10 Agustus 2026", match:78, status:"Terbit", applicants:12, description:"Program magang enam bulan untuk membantu rekonsiliasi dan pencatatan transaksi perusahaan.", responsibilities:["Input transaksi","Rekonsiliasi sederhana","Membantu laporan bulanan"], requirements:["Lulusan Akuntansi","Memahami jurnal dasar","Bersedia magang 6 bulan"], skills:["Excel","Akuntansi","Ketelitian"], benefits:["Sertifikat","Mentor","Peluang kontrak"] },
+]
+
+export const seededApplications: Application[] = [
+  { id:"APP-001", jobId:"it-support-specialist", jobTitle:"IT Support Specialist", company:"PT Arunika Teknologi", date:"12 Juli 2026", status:"Wawancara", note:"Wawancara daring dijadwalkan 19 Juli 2026 pukul 10.00 WIB." },
+  { id:"APP-002", jobId:"accounting-intern", jobTitle:"Accounting Intern", company:"Mitra Finansial", date:"8 Juli 2026", status:"Ditinjau", note:"Tim rekrutmen sedang meninjau dokumen Anda." },
+]
