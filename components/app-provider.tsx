@@ -2,8 +2,8 @@
 
 import { createContext, useContext, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import type { Role } from "@/lib/mock-data"
-import { demoAccounts, seededApplications, seededJobs, type Application, type Job, type Session } from "@/lib/app-data"
+import type { Role } from "@/types"
+import type { Application, Job, Session } from "@/types"
 import { fetchApplicationsFromBackend, fetchJobsFromBackend, getApiHealth, loginToBackend, saveApiToken, type ApiHealthResponse } from "@/lib/api-client"
 
 type Store = { ready:boolean; session:Session|null; jobs:Job[]; applications:Application[]; saved:string[]; apiStatus:ApiHealthResponse|null; login:(role:Role,email:string,password:string)=>Promise<string|null>; logout:()=>void; switchRole:(role:Role)=>void; toggleSaved:(id:string)=>void; apply:(job:Job,note:string)=>void; withdraw:(id:string)=>void; updateApplication:(id:string,status:Application["status"])=>void; saveJob:(job:Job)=>void; deleteJob:(id:string)=>void }
@@ -14,9 +14,9 @@ export function AppProvider({children}:{children:React.ReactNode}){
  const router=useRouter()
  const [ready,setReady]=useState(false)
  const [session,setSession]=useState<Session|null>(null)
- const [jobs,setJobs]=useState(seededJobs)
- const [applications,setApplications]=useState(seededApplications)
- const [saved,setSaved]=useState<string[]>(["junior-frontend-developer"])
+ const [jobs,setJobs]=useState<Job[]>([])
+ const [applications,setApplications]=useState<Application[]>([])
+ const [saved,setSaved]=useState<string[]>([])
  const [token,setToken]=useState<string|null>(null)
  const [apiStatus,setApiStatus]=useState<ApiHealthResponse|null>(null)
 
