@@ -6,9 +6,18 @@ import type { Role } from "@/types"
 import type { Application, Job, Session } from "@/types"
 import { fetchApplicationsFromBackend, fetchJobsFromBackend, getApiHealth, loginToBackend, saveApiToken, type ApiHealthResponse } from "@/lib/api-client"
 
-type Store = { ready:boolean; session:Session|null; jobs:Job[]; applications:Application[]; saved:string[]; apiStatus:ApiHealthResponse|null; login:(role:Role,email:string,password:string)=>Promise<string|null>; logout:()=>void; switchRole:(role:Role)=>void; toggleSaved:(id:string)=>void; apply:(job:Job,note:string)=>void; withdraw:(id:string)=>void; updateApplication:(id:string,status:Application["status"])=>void; saveJob:(job:Job)=>void; deleteJob:(id:string)=>void }
+type Store = { ready:boolean; session:Session|null; jobs:Job[]; applications:Application[]; saved:string[]; apiStatus:ApiHealthResponse|null; token:string|null; login:(role:Role,email:string,password:string)=>Promise<string|null>; logout:()=>void; switchRole:(role:Role)=>void; toggleSaved:(id:string)=>void; apply:(job:Job,note:string)=>void; withdraw:(id:string)=>void; updateApplication:(id:string,status:Application["status"])=>void; saveJob:(job:Job)=>void; deleteJob:(id:string)=>void }
 const Context=createContext<Store|null>(null)
 const KEY="jejak-lulusan-state-v2"
+
+const seededJobs:Job[]=[]
+const seededApplications:Application[]=[]
+
+const demoAccounts:Record<Role,{name:string,email:string,password:string}>={
+  alumni:{name:"Alumni SMK Nusantara",email:"alumni@smknusantara.sch.id",password:"alumni123"},
+  perusahaan:{name:"Perusahaan Mitra",email:"perusahaan@smknusantara.sch.id",password:"perusahaan123"},
+  admin:{name:"Admin SMK Nusantara",email:"admin@smknusantara.sch.id",password:"admin123"},
+}
 
 export function AppProvider({children}:{children:React.ReactNode}){
  const router=useRouter()

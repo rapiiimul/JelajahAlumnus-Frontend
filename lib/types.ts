@@ -1,4 +1,4 @@
-export type Role = "alumni"
+export type Role = "alumni" | "perusahaan" | "admin"
 export type PageKey = "dashboard" | "tracer" | "lowongan" | "kegiatan" | "profil"
 
 export type Job = { id:string; title:string; company:string; location:string; type:string; salary:string; deadline:string; match:number; status:"Terbit"|"Draft"|"Ditutup"; description:string; responsibilities:string[]; requirements:string[]; skills:string[]; benefits:string[]; applicants:number }
