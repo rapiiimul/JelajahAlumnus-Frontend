@@ -1,16 +1,19 @@
-import { Analytics } from "@vercel/analytics/next"
 import type { Metadata, Viewport } from "next"
+import { Analytics } from "@vercel/analytics/next"
 import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
-import { AppProvider } from "@/components/app-provider"
+import { AuthProvider } from "@/components/auth-provider"
 
 const geistSans = Geist({ subsets: ["latin"], variable: "--font-geist-sans" })
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" })
 
 export const metadata: Metadata = {
-  title: "Jejak Lulusan | SMK Nusantara",
-  description: "Platform tracer study terpadu untuk alumni dan Bursa Kerja Khusus SMK Nusantara.",
-  generator: "v0.app",
+  title: {
+    default: "Lacak.app — Alumni, Capaian, dan Karier",
+    template: "%s | Lacak.app",
+  },
+  description:
+    "Portal layanan alumni: tracer study, bursa kerja khusus (BKK), dan kegiatan pengembangan karier untuk lulusan SMK.",
 }
 
 export const viewport: Viewport = {
@@ -24,7 +27,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="id" className="bg-background">
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
-        <AppProvider>{children}</AppProvider>
+        <AuthProvider>{children}</AuthProvider>
         {process.env.NODE_ENV === "production" && <Analytics />}
       </body>
     </html>

@@ -1,5 +1,5 @@
-import { SiteApp } from "@/components/site-app"
+import { redirect } from "next/navigation"
 
-export default function Page() {
-  return <SiteApp />
+export default function HomePage() {
+  redirect("/dashboard")
 }

@@ -17,6 +17,8 @@ async function proxyRequest(request: NextRequest, pathSegments: string[]) {
     const contentType = request.headers.get("content-type") || ""
     if (contentType.includes("multipart/form-data")) {
       body = await request.formData()
+      // Biarkan fetch menetapkan boundary baru; header lama tidak valid lagi.
+      headers.delete("content-type")
     } else {
       const text = await request.text()
       body = text ? text : undefined
